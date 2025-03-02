@@ -1,1 +1,1 @@
-# mini_project_1-1
+# nekoglobalweather2

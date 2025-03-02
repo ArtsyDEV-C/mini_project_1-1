@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neko Global Weather 2</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <video src="videos/logo.mp4" autoplay loop muted id="logo-video"></video>
+        <h1 class="website-title">Neko Global Weather 2</h1>
+    </header>
+
+    <!-- User Authentication Section -->
+    <div class="auth-container">
+        <!-- Registration Form -->
+        <div class="auth-form">
+            <h2>Register</h2>
+            <form id="register-form" method="POST" action="/register">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Register</button>
+            </form>
+        </div>
+
+        <!-- Login Form -->
+        <div class="auth-form">
+            <h2>Login</h2>
+            <form id="login-form" method="POST" action="/login">
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Search Bar Section -->
+    <div class="search-bar">
+        <input type="text" id="search-input" placeholder="Enter city..." autocomplete="off">
+        <button id="search-button">Search</button>
+        <video src="videos/search.mp4" autoplay loop muted id="search-video"></video>
+    </div>
+
+    <!-- Current Weather Section -->
+    <div class="weather-container">
+        <div id="city-name" class="weather-info"></div>
+        <div id="date-time" class="weather-info"></div>
+        <div id="weather-icon" class="weather-info"></div>
+        <div id="weather-temperature" class="weather-info"></div>
+        <div id="weather-description" class="weather-info"></div>
+
+        <!-- Weather Stats -->
+        <div class="weather-stats">
+            <div><strong>Wind Speed:</strong> <span id="wind-speed"></span></div>
+            <div><strong>Humidity:</strong> <span id="humidity"></span></div>
+            <div><strong>UV Index:</strong> <span id="uv-index"></span></div>
+            <div><strong>Pressure:</strong> <span id="pressure"></span></div>
+            <div><strong>Sunrise:</strong> <span id="sunrise"></span></div>
+            <div><strong>Sunset:</strong> <span id="sunset"></span></div>
+            <div><strong>Local Time:</strong> <span id="local-time"></span></div>
+            <div><strong>IST Time:</strong> <span id="ist-time"></span></div>
+        </div>
+    </div>
+
+    <!-- Save City Section -->
+    <div class="save-city-container">
+        <h2>Save City</h2>
+        <form id="save-city-form" method="POST" action="/cities">
+            <input type="text" name="city" placeholder="City Name" required>
+            <button type="submit">Save City</button>
+        </form>
+    </div>
+
+    <!-- 10-Day Forecast Section -->
+    <div id="forecast" class="forecast-container"></div>
+
+    <!-- Video and Music Section -->
+    <video id="weather-video" width="100%" height="auto" muted autoplay loop src="videos/default.mp4"></video>
+    <audio id="weather-music" loop></audio>
+
+    <!-- Chat Section -->
+    <div id="chat-container">
+        <div id="chatbox" class="chatbox"></div>
+        <input type="text" id="chat-input" placeholder="Ask me anything...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <video src="videos/contact.mp4" autoplay loop muted id="contact-video"></video>
+        <p>Powered by OpenWeatherMap</p>
+        <p>Contact: shreejithisdumb@gmail.com | Phone: 7904106363</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>
