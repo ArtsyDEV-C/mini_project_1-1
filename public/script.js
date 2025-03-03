@@ -24,7 +24,7 @@ const weatherBackgrounds = {
     "foggy-evening": "images/foggy-sky-evening.jpg",
     "windy-morning": "images/windy-sky-day.jpg",
     "windy-night": "images/windy-sky-night.jpg",
-    "windy-evening": "images/windy-sky-eveing.jpg",
+    "windy-evening": "images/windy-sky-evening.jpg",
 };
 
 const weatherVideos = {
@@ -37,9 +37,9 @@ const weatherVideos = {
     "foggy-day": "videos/foggy-day-cat.mp4",
     "foggy-evening": "videos/foggy-evening-cat.mp4",
     "foggy-night": "videos/foggy-night-cat.mp4",
-    "rain-day": "videos/rainy-day-cat.mp4",
-    "rain-evening": "videos/rainy-evening-cat.mp4",
-    "rain-night": "videos/rainy-night-cat.mp4",
+    "rainy-day": "videos/rainy-day-cat.mp4",
+    "rainy-evening": "videos/rainy-evening-cat.mp4",
+    "rainy-night": "videos/rainy-night-cat.mp4",
     "snowy-day": "videos/snowy-day-cat.mp4",
     "snowy-evening": "videos/snowy-evening-cat.mp4",
     "snowy-night": "videos/snowy-night-cat.mp4",
@@ -142,55 +142,56 @@ function updateWeatherUI(data) {
     } else if (isMorningTime) {
         backgroundImage = weatherBackgrounds["clear-day"];
     }
-    if (weatherCondition.includes('cloud')) backgroundImage = isDayTime ? weatherBackgrounds["cloudy-day"] : (isEveningTime ? weatherBackgrounds["cloudy-evening"] : (isMorningTime ? weatherBackgrounds["cloudy-morning"] : weatherBackgrounds["cloudy-night"]));
-    if (weatherCondition.includes('rain')) backgroundImage = isDayTime ? weatherBackgrounds["rainy-day"] : (isEveningTime ? weatherBackgrounds["rainy-evening"] : (isMorningTime ? weatherBackgrounds["rainy-morning"] : weatherBackgrounds["rainy-night"]));
-    if (weatherCondition.includes('clear')) backgroundImage = isDayTime ? weatherBackgrounds["clear-day"] : (isEveningTime ? weatherBackgrounds["clear-evening"] : (isMorningTime ? weatherBackgrounds["clear-morning"] : weatherBackgrounds["clear-night"]));
-    if (weatherCondition.includes('snow')) backgroundImage = isDayTime ? weatherBackgrounds["snowy-day"] : (isEveningTime ? weatherBackgrounds["snowy-evening"] : (isMorningTime ? weatherBackgrounds["snowy-morning"] : weatherBackgrounds["snowy-night"]));
-    if (weatherCondition.includes('thunderstorm')) backgroundImage = isDayTime ? weatherBackgrounds["thunderstorm-day"] : (isEveningTime ? weatherBackgrounds["thunderstorm-evening"] : (isMorningTime ? weatherBackgrounds["thunderstorm-morning"] : weatherBackgrounds["thunderstorm-night"]));
-    if (weatherCondition.includes('haze')) backgroundImage = isDayTime ? weatherBackgrounds["hazy-day"] : (isEveningTime ? weatherBackgrounds["hazy-night"] : (isMorningTime ? weatherBackgrounds["hazy-morning"] : weatherBackgrounds["hazy-night"]));
-    if (weatherCondition.includes('fog')) backgroundImage = isDayTime ? weatherBackgrounds["foggy-day"] : (isEveningTime ? weatherBackgrounds["foggy-night"] : (isMorningTime ? weatherBackgrounds["foggy-morning"] : weatherBackgrounds["foggy-night"]));
-    if (weatherCondition.includes('wind')) backgroundImage = isDayTime ? weatherBackgrounds["windy-day"] : (isEveningTime ? weatherBackgrounds["windy-night"] : (isMorningTime ? weatherBackgrounds["windy-morning"] : weatherBackgrounds["windy-night"]));
+    if (weatherCondition.includes('cloud')) backgroundImage = isDayTime ? weatherBackgrounds["cloudy-day"] : (isEveningTime ? weatherBackgrounds["cloudy-evening"] : weatherBackgrounds["cloudy-night"]);
+    if (weatherCondition.includes('rain')) backgroundImage = isDayTime ? weatherBackgrounds["rainy-day"] : (isEveningTime ? weatherBackgrounds["rainy-evening"] : weatherBackgrounds["rainy-night"]);
+    if (weatherCondition.includes('clear')) backgroundImage = isDayTime ? weatherBackgrounds["clear-day"] : (isEveningTime ? weatherBackgrounds["clear-evening"] : weatherBackgrounds["clear-night"]);
+    if (weatherCondition.includes('snow')) backgroundImage = isDayTime ? weatherBackgrounds["snowy-day"] : (isEveningTime ? weatherBackgrounds["snowy-evening"] : weatherBackgrounds["snowy-night"]);
+    if (weatherCondition.includes('thunderstorm')) backgroundImage = isDayTime ? weatherBackgrounds["thunderstorm-day"] : (isEveningTime ? weatherBackgrounds["thunderstorm-evening"] : weatherBackgrounds["thunderstorm-night"]);
+    if (weatherCondition.includes('haze')) backgroundImage = isDayTime ? weatherBackgrounds["hazy-day"] : weatherBackgrounds["hazy-night"];
+    if (weatherCondition.includes('fog')) backgroundImage = isDayTime ? weatherBackgrounds["foggy-morning"] : (isEveningTime ? weatherBackgrounds["foggy-evening"] : weatherBackgrounds["foggy-night"]);
+    if (weatherCondition.includes('wind')) backgroundImage = isDayTime ? weatherBackgrounds["windy-morning"] : (isEveningTime ? weatherBackgrounds["windy-evening"] : weatherBackgrounds["windy-night"]);
 
     document.body.style.backgroundImage = `url(${backgroundImage})`;
 
     // Set video and music based on weather
     let video = weatherVideos["default"];
     if (isDayTime) {
-        video = weatherVideos["clear-morning"];
+        video = weatherVideos["clear-day"];
     } else if (isEveningTime) {
         video = weatherVideos["clear-evening"];
     } else if (isMorningTime) {
-        video = weatherVideos["clear-morning"];
+        video = weatherVideos["clear-day"];
     } else {
         video = weatherVideos["clear-night"];
     }
 
     let music = weatherMusic["clear"];
     if (weatherCondition.includes('rain')) {
-        video = isDayTime ? weatherVideos["rain-day"] : (isEveningTime ? weatherVideos["rain-evening"] : (isMorningTime ? weatherVideos["rain-day"] : weatherVideos["rain-night"]));
+        video = isDayTime ? weatherVideos["rainy-day"] : (isEveningTime ? weatherVideos["rainy-evening"] : weatherVideos["rainy-night"]);
         music = weatherMusic["rainy"];
     } else if (weatherCondition.includes('cloud')) {
-        video = isDayTime ? weatherVideos["cloudy-day"] : (isEveningTime ? weatherVideos["cloudy-evening"] : (isMorningTime ? weatherVideos["cloudy-day"] : weatherVideos["cloudy-night"]));
+        video = isDayTime ? weatherVideos["cloudy-day"] : (isEveningTime ? weatherVideos["cloudy-evening"] : weatherVideos["cloudy-night"]);
         music = weatherMusic["cloudy"];
     } else if (weatherCondition.includes('snow')) {
-        video = isDayTime ? weatherVideos["snowy-day"] : (isEveningTime ? weatherVideos["snowy-evening"] : (isMorningTime ? weatherVideos["snowy-day"] : weatherVideos["snowy-night"]));
+        video = isDayTime ? weatherVideos["snowy-day"] : (isEveningTime ? weatherVideos["snowy-evening"] : weatherVideos["snowy-night"]);
         music = weatherMusic["snowy"];
     } else if (weatherCondition.includes('thunderstorm')) {
-        video = isDayTime ? weatherVideos["thunderstorm-day"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : (isMorningTime ? weatherVideos["thunderstorm-day"] : weatherVideos["thunderstorm-night"]));
+        video = isDayTime ? weatherVideos["thunderstorm-day"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : weatherVideos["thunderstorm-night"]);
         music = weatherMusic["thunderstorm"];
     } else if (weatherCondition.includes('haze')) {
-        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-day"] : weatherVideos["foggy-night"]));
+        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : weatherVideos["foggy-night"]);
         music = weatherMusic["hazy"];
     } else if (weatherCondition.includes('fog')) {
-        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-day"] : weatherVideos["foggy-night"]));
+        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : weatherVideos["foggy-night"]);
         music = weatherMusic["foggy"];
     } else if (weatherCondition.includes('wind')) {
-        video = isDayTime ? weatherVideos["windy-day"] : (isEveningTime ? weatherVideos["windy-evening"] : (isMorningTime ? weatherVideos["windy-day"] : weatherVideos["windy-night"]));
+        video = isDayTime ? weatherVideos["windy-day"] : (isEveningTime ? weatherVideos["windy-evening"] : weatherVideos["windy-night"]);
         music = weatherMusic["windy"];
     }
 
     // Set video
     weatherVideo.src = video;
+    weatherVideo.play();
 
     // Set music (play automatically)
     weatherMusicElement.src = music;
