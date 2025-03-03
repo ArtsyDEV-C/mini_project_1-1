@@ -77,7 +77,7 @@ app.post('/cities', async (req, res) => {
 app.post('/chat', async (req, res) => {
   try {
     const userMessage = req.body.message;
-    
+
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
       model: 'gpt-4',
       messages: [{ role: 'system', content: 'You are a helpful weather assistant.' },
@@ -88,6 +88,13 @@ app.post('/chat', async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
+
+    res.json({ response: response.data.choices[0].message.content });
+  } catch (error) {
+    console.error('OpenAI API Error:', error.response ? error.response.data : error.message);
+    res.status(500).json({ response: error.response ? error.response.data : 'Internal Server Error' });
+  }
+});
 
     res.json({ response: response.data.choices[0].message.content });
   } catch (error) {
