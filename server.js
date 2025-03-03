@@ -6,8 +6,8 @@ const User = require('./models/User');
 const City = require('./models/City');
 const dotenv = require('dotenv');
 const methodOverride = require('method-override');
-const axios = require('axios'); // Add this line
-const cors = require('cors'); // Add this line
+const axios = require('axios');
+const cors = require('cors');
 
 dotenv.config();
 
@@ -17,7 +17,7 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors()); // Add this line
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -93,13 +93,6 @@ app.post('/chat', async (req, res) => {
   } catch (error) {
     console.error('OpenAI API Error:', error.response ? error.response.data : error.message);
     res.status(500).json({ response: error.response ? error.response.data : 'Internal Server Error' });
-  }
-});
-
-    res.json({ response: response.data.choices[0].message.content });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ response: 'Sorry, something went wrong.' });
   }
 });
 
