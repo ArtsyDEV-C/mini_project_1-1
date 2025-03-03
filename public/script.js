@@ -28,28 +28,28 @@ const weatherBackgrounds = {
 };
 
 const weatherVideos = {
-    "clear-morning": "videos/clear-morning-cat.mp4",
+    "clear-day": "videos/clear-day-cat.mp4",
     "clear-evening": "videos/clear-evening-cat.mp4",
     "clear-night": "videos/clear-night-cat.mp4",
-    "cloudy-morning": "videos/cloudy-morning-cat.mp4",
+    "cloudy-day": "videos/cloudy-day-cat.mp4",
     "cloudy-evening": "videos/cloudy-evening-cat.mp4",
     "cloudy-night": "videos/cloudy-night-cat.mp4",
-    "foggy-morning": "videos/foggy-morning-cat.mp4",
+    "foggy-day": "videos/foggy-day-cat.mp4",
     "foggy-evening": "videos/foggy-evening-cat.mp4",
     "foggy-night": "videos/foggy-night-cat.mp4",
-    "rain-morning": "videos/rainy-morning-cat.mp4",
+    "rain-day": "videos/rainy-day-cat.mp4",
     "rain-evening": "videos/rainy-evening-cat.mp4",
     "rain-night": "videos/rainy-night-cat.mp4",
-    "snowy-morning": "videos/snowy-morning-cat.mp4",
+    "snowy-day": "videos/snowy-day-cat.mp4",
     "snowy-evening": "videos/snowy-evening-cat.mp4",
     "snowy-night": "videos/snowy-night-cat.mp4",
-    "sunny-morning": "videos/sunny-morning-cat.mp4",
+    "sunny-day": "videos/sunny-day-cat.mp4",
     "sunny-evening": "videos/sunny-evening-cat.mp4",
     "sunny-night": "videos/sunny-night-cat.mp4",
-    "thunderstorm-morning": "videos/thunderstorm-morning-cat.mp4",
+    "thunderstorm-day": "videos/thunderstorm-day-cat.mp4",
     "thunderstorm-evening": "videos/thunderstorm-evening-cat.mp4",
     "thunderstorm-night": "videos/thunderstorm-night-cat.mp4",
-    "windy-morning": "videos/windy-morning-cat.mp4",
+    "windy-day": "videos/windy-day-cat.mp4",
     "windy-evening": "videos/windy-evening-cat.mp4",
     "windy-night": "videos/windy-night-cat.mp4",
     "default": "videos/default.mp4"
@@ -167,25 +167,25 @@ function updateWeatherUI(data) {
 
     let music = weatherMusic["clear"];
     if (weatherCondition.includes('rain')) {
-        video = isDayTime ? weatherVideos["rain-morning"] : (isEveningTime ? weatherVideos["rain-evening"] : (isMorningTime ? weatherVideos["rain-morning"] : weatherVideos["rain-night"]));
+        video = isDayTime ? weatherVideos["rain-day"] : (isEveningTime ? weatherVideos["rain-evening"] : (isMorningTime ? weatherVideos["rain-day"] : weatherVideos["rain-night"]));
         music = weatherMusic["rainy"];
     } else if (weatherCondition.includes('cloud')) {
-        video = isDayTime ? weatherVideos["cloudy-morning"] : (isEveningTime ? weatherVideos["cloudy-evening"] : (isMorningTime ? weatherVideos["cloudy-morning"] : weatherVideos["cloudy-night"]));
+        video = isDayTime ? weatherVideos["cloudy-day"] : (isEveningTime ? weatherVideos["cloudy-evening"] : (isMorningTime ? weatherVideos["cloudy-day"] : weatherVideos["cloudy-night"]));
         music = weatherMusic["cloudy"];
     } else if (weatherCondition.includes('snow')) {
-        video = isDayTime ? weatherVideos["snowy-morning"] : (isEveningTime ? weatherVideos["snowy-evening"] : (isMorningTime ? weatherVideos["snowy-morning"] : weatherVideos["snowy-night"]));
+        video = isDayTime ? weatherVideos["snowy-day"] : (isEveningTime ? weatherVideos["snowy-evening"] : (isMorningTime ? weatherVideos["snowy-day"] : weatherVideos["snowy-night"]));
         music = weatherMusic["snowy"];
     } else if (weatherCondition.includes('thunderstorm')) {
-        video = isDayTime ? weatherVideos["thunderstorm-morning"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : (isMorningTime ? weatherVideos["thunderstorm-morning"] : weatherVideos["thunderstorm-night"]));
+        video = isDayTime ? weatherVideos["thunderstorm-day"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : (isMorningTime ? weatherVideos["thunderstorm-day"] : weatherVideos["thunderstorm-night"]));
         music = weatherMusic["thunderstorm"];
     } else if (weatherCondition.includes('haze')) {
-        video = isDayTime ? weatherVideos["foggy-morning"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-morning"] : weatherVideos["foggy-night"]));
+        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-day"] : weatherVideos["foggy-night"]));
         music = weatherMusic["hazy"];
     } else if (weatherCondition.includes('fog')) {
-        video = isDayTime ? weatherVideos["foggy-morning"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-morning"] : weatherVideos["foggy-night"]));
+        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-day"] : weatherVideos["foggy-night"]));
         music = weatherMusic["foggy"];
     } else if (weatherCondition.includes('wind')) {
-        video = isDayTime ? weatherVideos["windy-morning"] : (isEveningTime ? weatherVideos["windy-evening"] : (isMorningTime ? weatherVideos["windy-morning"] : weatherVideos["windy-night"]));
+        video = isDayTime ? weatherVideos["windy-day"] : (isEveningTime ? weatherVideos["windy-evening"] : (isMorningTime ? weatherVideos["windy-day"] : weatherVideos["windy-night"]));
         music = weatherMusic["windy"];
     }
 
