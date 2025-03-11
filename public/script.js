@@ -24,32 +24,32 @@ const weatherBackgrounds = {
     "foggy-evening": "images/foggy-sky-evening.jpg",
     "windy-morning": "images/windy-sky-day.jpg",
     "windy-night": "images/windy-sky-night.jpg",
-    "windy-evening": "images/windy-sky-evening.jpg",
+    "windy-evening": "images/windy-sky-eveing.jpg",
 };
 
 const weatherVideos = {
-    "clear-day": "videos/clear-day-cat.mp4",
+    "clear-morning": "videos/clear-morning-cat.mp4",
     "clear-evening": "videos/clear-evening-cat.mp4",
     "clear-night": "videos/clear-night-cat.mp4",
-    "cloudy-day": "videos/cloudy-day-cat.mp4",
+    "cloudy-morning": "videos/cloudy-morning-cat.mp4",
     "cloudy-evening": "videos/cloudy-evening-cat.mp4",
     "cloudy-night": "videos/cloudy-night-cat.mp4",
-    "foggy-day": "videos/foggy-day-cat.mp4",
+    "foggy-morning": "videos/foggy-morning-cat.mp4",
     "foggy-evening": "videos/foggy-evening-cat.mp4",
     "foggy-night": "videos/foggy-night-cat.mp4",
-    "rainy-day": "videos/rainy-day-cat.mp4",
-    "rainy-evening": "videos/rainy-evening-cat.mp4",
-    "rainy-night": "videos/rainy-night-cat.mp4",
-    "snowy-day": "videos/snowy-day-cat.mp4",
+    "rain-morning": "videos/rainy-morning-cat.mp4",
+    "rain-evening": "videos/rainy-evening-cat.mp4",
+    "rain-night": "videos/rainy-night-cat.mp4",
+    "snowy-morning": "videos/snowy-morning-cat.mp4",
     "snowy-evening": "videos/snowy-evening-cat.mp4",
     "snowy-night": "videos/snowy-night-cat.mp4",
-    "sunny-day": "videos/sunny-day-cat.mp4",
+    "sunny-morning": "videos/sunny-morning-cat.mp4",
     "sunny-evening": "videos/sunny-evening-cat.mp4",
     "sunny-night": "videos/sunny-night-cat.mp4",
-    "thunderstorm-day": "videos/thunderstorm-day-cat.mp4",
+    "thunderstorm-morning": "videos/thunderstorm-morning-cat.mp4",
     "thunderstorm-evening": "videos/thunderstorm-evening-cat.mp4",
     "thunderstorm-night": "videos/thunderstorm-night-cat.mp4",
-    "windy-day": "videos/windy-day-cat.mp4",
+    "windy-morning": "videos/windy-morning-cat.mp4",
     "windy-evening": "videos/windy-evening-cat.mp4",
     "windy-night": "videos/windy-night-cat.mp4",
     "default": "videos/default.mp4"
@@ -109,7 +109,7 @@ function formatTime(date) {
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
+    hours = hours ? 12 : 12; // the hour '0' should be '12'
     const strMinutes = minutes < 10 ? '0' + minutes : minutes;
     return `${hours}:${strMinutes} ${ampm}`;
 }
@@ -142,56 +142,55 @@ function updateWeatherUI(data) {
     } else if (isMorningTime) {
         backgroundImage = weatherBackgrounds["clear-day"];
     }
-    if (weatherCondition.includes('cloud')) backgroundImage = isDayTime ? weatherBackgrounds["cloudy-day"] : (isEveningTime ? weatherBackgrounds["cloudy-evening"] : weatherBackgrounds["cloudy-night"]);
-    if (weatherCondition.includes('rain')) backgroundImage = isDayTime ? weatherBackgrounds["rainy-day"] : (isEveningTime ? weatherBackgrounds["rainy-evening"] : weatherBackgrounds["rainy-night"]);
-    if (weatherCondition.includes('clear')) backgroundImage = isDayTime ? weatherBackgrounds["clear-day"] : (isEveningTime ? weatherBackgrounds["clear-evening"] : weatherBackgrounds["clear-night"]);
-    if (weatherCondition.includes('snow')) backgroundImage = isDayTime ? weatherBackgrounds["snowy-day"] : (isEveningTime ? weatherBackgrounds["snowy-evening"] : weatherBackgrounds["snowy-night"]);
-    if (weatherCondition.includes('thunderstorm')) backgroundImage = isDayTime ? weatherBackgrounds["thunderstorm-day"] : (isEveningTime ? weatherBackgrounds["thunderstorm-evening"] : weatherBackgrounds["thunderstorm-night"]);
-    if (weatherCondition.includes('haze')) backgroundImage = isDayTime ? weatherBackgrounds["hazy-day"] : weatherBackgrounds["hazy-night"];
-    if (weatherCondition.includes('fog')) backgroundImage = isDayTime ? weatherBackgrounds["foggy-morning"] : (isEveningTime ? weatherBackgrounds["foggy-evening"] : weatherBackgrounds["foggy-night"]);
-    if (weatherCondition.includes('wind')) backgroundImage = isDayTime ? weatherBackgrounds["windy-morning"] : (isEveningTime ? weatherBackgrounds["windy-evening"] : weatherBackgrounds["windy-night"]);
+    if (weatherCondition.includes('cloud')) backgroundImage = isDayTime ? weatherBackgrounds["cloudy-day"] : (isEveningTime ? weatherBackgrounds["cloudy-evening"] : (isMorningTime ? weatherBackgrounds["cloudy-morning"] : weatherBackgrounds["cloudy-night"]));
+    if (weatherCondition.includes('rain')) backgroundImage = isDayTime ? weatherBackgrounds["rainy-day"] : (isEveningTime ? weatherBackgrounds["rainy-evening"] : (isMorningTime ? weatherBackgrounds["rainy-morning"] : weatherBackgrounds["rainy-night"]));
+    if (weatherCondition.includes('clear')) backgroundImage = isDayTime ? weatherBackgrounds["clear-day"] : (isEveningTime ? weatherBackgrounds["clear-evening"] : (isMorningTime ? weatherBackgrounds["clear-morning"] : weatherBackgrounds["clear-night"]));
+    if (weatherCondition.includes('snow')) backgroundImage = isDayTime ? weatherBackgrounds["snowy-day"] : (isEveningTime ? weatherBackgrounds["snowy-evening"] : (isMorningTime ? weatherBackgrounds["snowy-morning"] : weatherBackgrounds["snowy-night"]));
+    if (weatherCondition.includes('thunderstorm')) backgroundImage = isDayTime ? weatherBackgrounds["thunderstorm-day"] : (isEveningTime ? weatherBackgrounds["thunderstorm-evening"] : (isMorningTime ? weatherBackgrounds["thunderstorm-morning"] : weatherBackgrounds["thunderstorm-night"]));
+    if (weatherCondition.includes('haze')) backgroundImage = isDayTime ? weatherBackgrounds["hazy-day"] : (isEveningTime ? weatherBackgrounds["hazy-night"] : (isMorningTime ? weatherBackgrounds["hazy-morning"] : weatherBackgrounds["hazy-night"]));
+    if (weatherCondition.includes('fog')) backgroundImage = isDayTime ? weatherBackgrounds["foggy-day"] : (isEveningTime ? weatherBackgrounds["foggy-night"] : (isMorningTime ? weatherBackgrounds["foggy-morning"] : weatherBackgrounds["foggy-night"]));
+    if (weatherCondition.includes('wind')) backgroundImage = isDayTime ? weatherBackgrounds["windy-day"] : (isEveningTime ? weatherBackgrounds["windy-night"] : (isMorningTime ? weatherBackgrounds["windy-morning"] : weatherBackgrounds["windy-night"]));
 
     document.body.style.backgroundImage = `url(${backgroundImage})`;
 
     // Set video and music based on weather
     let video = weatherVideos["default"];
     if (isDayTime) {
-        video = weatherVideos["clear-day"];
+        video = weatherVideos["clear-morning"];
     } else if (isEveningTime) {
         video = weatherVideos["clear-evening"];
     } else if (isMorningTime) {
-        video = weatherVideos["clear-day"];
+        video = weatherVideos["clear-morning"];
     } else {
         video = weatherVideos["clear-night"];
     }
 
     let music = weatherMusic["clear"];
     if (weatherCondition.includes('rain')) {
-        video = isDayTime ? weatherVideos["rainy-day"] : (isEveningTime ? weatherVideos["rainy-evening"] : weatherVideos["rainy-night"]);
+        video = isDayTime ? weatherVideos["rain-morning"] : (isEveningTime ? weatherVideos["rain-evening"] : (isMorningTime ? weatherVideos["rain-morning"] : weatherVideos["rain-night"]));
         music = weatherMusic["rainy"];
     } else if (weatherCondition.includes('cloud')) {
-        video = isDayTime ? weatherVideos["cloudy-day"] : (isEveningTime ? weatherVideos["cloudy-evening"] : weatherVideos["cloudy-night"]);
+        video = isDayTime ? weatherVideos["cloudy-morning"] : (isEveningTime ? weatherVideos["cloudy-evening"] : (isMorningTime ? weatherVideos["cloudy-morning"] : weatherVideos["cloudy-night"]));
         music = weatherMusic["cloudy"];
     } else if (weatherCondition.includes('snow')) {
-        video = isDayTime ? weatherVideos["snowy-day"] : (isEveningTime ? weatherVideos["snowy-evening"] : weatherVideos["snowy-night"]);
+        video = isDayTime ? weatherVideos["snowy-morning"] : (isEveningTime ? weatherVideos["snowy-evening"] : (isMorningTime ? weatherVideos["snowy-morning"] : weatherVideos["snowy-night"]));
         music = weatherMusic["snowy"];
     } else if (weatherCondition.includes('thunderstorm')) {
-        video = isDayTime ? weatherVideos["thunderstorm-day"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : weatherVideos["thunderstorm-night"]);
+        video = isDayTime ? weatherVideos["thunderstorm-morning"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : (isMorningTime ? weatherVideos["thunderstorm-morning"] : weatherVideos["thunderstorm-night"]));
         music = weatherMusic["thunderstorm"];
     } else if (weatherCondition.includes('haze')) {
-        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : weatherVideos["foggy-night"]);
+        video = isDayTime ? weatherVideos["foggy-morning"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-morning"] : weatherVideos["foggy-night"]));
         music = weatherMusic["hazy"];
     } else if (weatherCondition.includes('fog')) {
-        video = isDayTime ? weatherVideos["foggy-day"] : (isEveningTime ? weatherVideos["foggy-evening"] : weatherVideos["foggy-night"]);
+        video = isDayTime ? weatherVideos["foggy-morning"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-morning"] : weatherVideos["foggy-night"]));
         music = weatherMusic["foggy"];
     } else if (weatherCondition.includes('wind')) {
-        video = isDayTime ? weatherVideos["windy-day"] : (isEveningTime ? weatherVideos["windy-evening"] : weatherVideos["windy-night"]);
+        video = isDayTime ? weatherVideos["windy-morning"] : (isEveningTime ? weatherVideos["windy-evening"] : (isMorningTime ? weatherVideos["windy-morning"] : weatherVideos["windy-night"]));
         music = weatherMusic["windy"];
     }
 
     // Set video
     weatherVideo.src = video;
-    weatherVideo.play();
 
     // Set music (play automatically)
     weatherMusicElement.src = music;
@@ -233,6 +232,9 @@ function updateWeatherUI(data) {
         <div><strong>Day 9:</strong> Clear - 24°C</div>
         <div><strong>Day 10:</strong> Snowy - 5°C</div>
     `;
+
+    // Provide recommendations based on weather
+    provideRecommendations(weather);
 }
 
 // Fetch weather data from API
@@ -255,6 +257,15 @@ async function fetchWeather(city) {
         loadingSpinner.style.display = 'none';
     }
 }
+
+// Get user's current location
+navigator.geolocation.getCurrentPosition(async (position) => {
+    const { latitude, longitude } = position.coords;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    updateWeatherUI(data);
+});
 
 // Event listener for search button
 searchButton.addEventListener('click', () => {
@@ -342,3 +353,89 @@ saveCityForm.addEventListener('submit', async (e) => {
         alert('Error saving city');
     }
 });
+
+// Example function to trigger alert
+const triggerAlert = async (type, to, message) => {
+  await fetch('/send-alert', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type, to, message })
+  });
+};
+
+// Function to provide recommendations based on weather
+const provideRecommendations = (weather) => {
+  const recommendations = [];
+  if (weather.main.temp < 15) {
+    recommendations.push('Wear warm clothes');
+  } else if (weather.main.temp > 30) {
+    recommendations.push('Wear light clothes');
+  }
+  if (weather.weather[0].main === 'Rain') {
+    recommendations.push('Carry an umbrella');
+  }
+  // Display recommendations
+  document.getElementById('recommendations').innerHTML = recommendations.join(', ');
+};
+
+// Function to display disaster warnings
+const displayDisasterWarnings = (warnings) => {
+  const warningContainer = document.getElementById('disaster-warnings');
+  warningContainer.innerHTML = warnings.map(warning => `<div>${warning}</div>`).join('');
+};
+
+// Initialize map
+const map = L.map('map').setView([51.505, -0.09], 13);
+
+// Add tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Add weather data layer
+const weatherLayer = L.layerGroup().addTo(map);
+
+// Function to update weather layer
+const updateWeatherLayer = (data) => {
+  weatherLayer.clearLayers();
+  data.forEach(point => {
+    L.marker([point.lat, point.lon]).addTo(weatherLayer)
+      .bindPopup(`<b>${point.weather}</b><br>${point.temp}°C`);
+  });
+};
+
+// Example using Web Speech API
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.onresult = (event) => {
+  const command = event.results[0][0].transcript;
+  if (command.includes('weather')) {
+    fetchWeather('current location');
+  }
+};
+recognition.start();
+
+// Example using Three.js
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Add weather data to scene
+const addWeatherDataToScene = (data) => {
+  data.forEach(point => {
+    const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const sphere = new THREE.Mesh(geometry, material);
+    sphere.position.set(point.lat, point.lon, 0);
+    scene.add(sphere);
+  });
+};
+
+// Render scene
+const animate = () => {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+};
+animate();
+
