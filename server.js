@@ -13,6 +13,7 @@ const axios = require('axios');
 const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
+const MongoStore = require('connect-mongo');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -40,7 +41,11 @@ mongoose.connect(mongoURI)
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI,
+        collectionName: 'sessions'
+    })
 }));
 
 // Passport middleware
