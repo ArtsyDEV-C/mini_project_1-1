@@ -1,40 +1,66 @@
+require('dotenv').config();
+
 const express = require('express');
+const mongoose = require('mongoose');
 const session = require('express-session');
-const passport = require('./config/passport');
+const passport = require('passport');
+const Twilio = require('twilio');
 const connectDB = require('./db');
 const User = require('./models/User');
 const City = require('./models/City');
-const dotenv = require('dotenv');
+const Chat = require('./models/Chat');
 const methodOverride = require('method-override');
-const axios = require('axios'); // Add this line
-const cors = require('cors'); // Add this line
-const twilio = require('twilio');
+const axios = require('axios');
+const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
-
-dotenv.config();
+const path = require('path');
 
 const app = express();
+const port = process.env.PORT || 3000;
+
+// Twilio configuration
+const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch(err => console.log(err));
+
+// Express session
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Connect to MongoDB
 connectDB();
 
 // Middleware
-app.use(cors()); // Add this line
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-}));
-app.use(passport.initialize());
-app.use(passport.session());
 app.use(methodOverride('_method'));
 
 // Serve static files
 app.use(express.static('public'));
 
-const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
+// Serve CSS file with correct MIME type
+app.get('/style.css', (req, res) => {
+  res.setHeader('Content-Type', 'text/css');
+  res.sendFile(path.join(__dirname, 'public', 'style.css'));
+});
+
+// Serve MP4 videos with correct MIME type
+app.get('/public/videos/:filename', (req, res) => {
+  res.setHeader('Content-Type', 'video/mp4');
+  res.sendFile(path.join(__dirname, 'public', 'videos', req.params.filename));
+});
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // Function to send SMS alert
@@ -99,6 +125,28 @@ app.post('/cities', async (req, res) => {
   }
 });
 
+app.get('/cities', async (req, res) => {
+  try {
+    const cities = await City.find();
+    res.json(cities);
+  } catch (err) {
+    console.error("Error fetching cities:", err);
+    res.status(500).json({ error: "Server error while fetching cities." });
+  }
+});
+
+app.post('/chat', async (req, res) => {
+  try {
+    const { message } = req.body;
+    const chat = new Chat({ message });
+    await chat.save();
+    res.status(201).json(chat);
+  } catch (err) {
+    console.error("Error saving chat message:", err);
+    res.status(500).json({ error: "Server error while saving chat message." });
+  }
+});
+
 app.post('/chat', async (req, res) => {
   try {
     const userMessage = req.body.message;
@@ -140,5 +188,6 @@ app.post('/send-emergency-alert', (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
