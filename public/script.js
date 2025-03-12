@@ -203,7 +203,7 @@ function updateWeatherUI(data) {
 
     // Set weather description and icon
     weatherDescription.innerHTML = weather.description;
-    weatherIcon.innerHTML = `<img src="http://openweathermap.org/img/wn/${weather.icon}.png" alt="Weather Icon">`;
+    weatherIcon.innerHTML = `<img src="https://openweathermap.org/img/wn/${weather.icon}.png" alt="Weather Icon">`;
 
     // Set other weather data
     windSpeedElement.innerText = `${wind.speed} m/s`;
@@ -246,12 +246,15 @@ async function fetchWeather(city) {
         const response = await fetch(url);
         const data = await response.json();
 
-        if (data.cod === '404') {
-            alert('City not found!');
-        } else {
-            updateWeatherUI(data);
+        if (!data || !data.weather || data.weather.length === 0) {
+            console.error("Weather data not found", data);
+            alert('Weather data not found!');
+            return;
         }
+
+        updateWeatherUI(data);
     } catch (error) {
+        console.error("Error fetching weather data:", error);
         alert('Error fetching weather data!');
     } finally {
         loadingSpinner.style.display = 'none';
@@ -262,9 +265,21 @@ async function fetchWeather(city) {
 navigator.geolocation.getCurrentPosition(async (position) => {
     const { latitude, longitude } = position.coords;
     const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    updateWeatherUI(data);
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data || !data.weather || data.weather.length === 0) {
+            console.error("Weather data not found", data);
+            alert('Weather data not found!');
+            return;
+        }
+
+        updateWeatherUI(data);
+    } catch (error) {
+        console.error("Error fetching weather data:", error);
+        alert('Error fetching weather data!');
+    }
 });
 
 // Event listener for search button
