@@ -8,7 +8,7 @@ const Twilio = require('twilio');
 const connectDB = require('./db');
 const User = require('./models/User');
 const City = require('./models/City');
-const Chat = require('./models/Chat');
+const Chat = require('./models/Chat');  // Case-sensitive!
 const methodOverride = require('method-override');
 const axios = require('axios');
 const cors = require('cors');
@@ -60,6 +60,8 @@ app.get('/public/videos/:filename', (req, res) => {
   res.setHeader('Content-Type', 'video/mp4');
   res.sendFile(path.join(__dirname, 'public', 'videos', req.params.filename));
 });
+
+app.get('/favicon.ico', (req, res) => res.status(204));
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
