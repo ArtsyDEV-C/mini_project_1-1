@@ -19,12 +19,10 @@ const weatherBackgrounds = {
     "thunderstorm-evening": "images/thunderstorm-sky-evening.jpg",
     "hazy-day": "images/hazy-sky-day.jpg",
     "hazy-night": "images/hazy-sky-night.jpg",
-    "foggy-morning": "images/foggy-sky-day.jpg",
+    "foggy-day": "images/foggy-sky-day.jpg",
     "foggy-night": "images/foggy-sky-night.jpg",
-    "foggy-evening": "images/foggy-sky-evening.jpg",
-    "windy-morning": "images/windy-sky-day.jpg",
-    "windy-night": "images/windy-sky-night.jpg",
-    "windy-evening": "images/windy-sky-eveing.jpg",
+    "windy-day": "images/windy-sky-day.jpg",
+    "windy-night": "images/windy-sky-night.jpg"
 };
 
 const weatherVideos = {
@@ -37,9 +35,9 @@ const weatherVideos = {
     "foggy-morning": "videos/foggy-morning-cat.mp4",
     "foggy-evening": "videos/foggy-evening-cat.mp4",
     "foggy-night": "videos/foggy-night-cat.mp4",
-    "rain-morning": "videos/rainy-morning-cat.mp4",
-    "rain-evening": "videos/rainy-evening-cat.mp4",
-    "rain-night": "videos/rainy-night-cat.mp4",
+    "rain-morning": "videos/rain-morning-cat.mp4",
+    "rain-evening": "videos/rain-evening-cat.mp4",
+    "rain-night": "videos/rain-night-cat.mp4",
     "snowy-morning": "videos/snowy-morning-cat.mp4",
     "snowy-evening": "videos/snowy-evening-cat.mp4",
     "snowy-night": "videos/snowy-night-cat.mp4",
@@ -109,7 +107,7 @@ function formatTime(date) {
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
-    hours = hours ? 12 : 12; // the hour '0' should be '12'
+    hours = hours ? hours : 12; // the hour '0' should be '12'
     const strMinutes = minutes < 10 ? '0' + minutes : minutes;
     return `${hours}:${strMinutes} ${ampm}`;
 }
@@ -197,7 +195,7 @@ function updateWeatherUI(data) {
     weatherMusicElement.play();
 
     // Set temperature in Celsius and Fahrenheit
-    const tempCelsius = Math.round(main.temp - 273.15);
+    const tempCelsius = Math.round(main.temp);
     const tempFahrenheit = Math.round((tempCelsius * 9 / 5) + 32);
     temperatureElement.innerHTML = `${tempCelsius}°C / ${tempFahrenheit}°F`;
 
@@ -239,25 +237,21 @@ function updateWeatherUI(data) {
 
 // Fetch weather data from API
 async function fetchWeather(city) {
-    loadingSpinner.style.display = 'flex';
+    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68';
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`;
     try {
-        const response = await fetch(url);
+        const response = await fetch(apiUrl);
         const data = await response.json();
 
-        if (!data || !data.weather || data.weather.length === 0) {
-            console.error("Weather data not found", data);
-            alert('Weather data not found!');
-            return;
+        if (!data.weather) {
+            throw new Error("Weather data not found");
         }
 
         updateWeatherUI(data);
     } catch (error) {
-        console.error("Error fetching weather data:", error);
+        console.error("❌ Error fetching weather data:", error);
         alert('Error fetching weather data!');
-    } finally {
-        loadingSpinner.style.display = 'none';
     }
 }
 
@@ -281,6 +275,9 @@ navigator.geolocation.getCurrentPosition(async (position) => {
         alert('Error fetching weather data!');
     }
 });
+
+// Add console debugging message
+console.log("Weather app initialized successfully.");
 
 // Event listener for search button
 searchButton.addEventListener('click', () => {
@@ -430,27 +427,27 @@ recognition.onresult = (event) => {
 recognition.start();
 
 // Example using Three.js
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+// const scene = new THREE.Scene();
+// const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+// const renderer = new THREE.WebGLRenderer();
+// renderer.setSize(window.innerWidth, window.innerHeight);
+// document.body.appendChild(renderer.domElement);
 
 // Add weather data to scene
-const addWeatherDataToScene = (data) => {
-  data.forEach(point => {
-    const geometry = new THREE.SphereGeometry(0.1, 32, 32);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(point.lat, point.lon, 0);
-    scene.add(sphere);
-  });
-};
+// const addWeatherDataToScene = (data) => {
+//   data.forEach(point => {
+//     const geometry = new THREE.SphereGeometry(0.1, 32, 32);
+//     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+//     const sphere = new THREE.Mesh(geometry, material);
+//     sphere.position.set(point.lat, point.lon, 0);
+//     scene.add(sphere);
+//   });
+// };
 
 // Render scene
-const animate = () => {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-};
-animate();
+// const animate = () => {
+//   requestAnimationFrame(animate);
+//   renderer.render(scene, camera);
+// };
+// animate();
 
