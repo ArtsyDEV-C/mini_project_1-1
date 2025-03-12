@@ -8,7 +8,7 @@ const Twilio = require('twilio');
 const connectDB = require('./db');
 const User = require('./models/User');
 const City = require('./models/City');
-const Chat = require('./models/Chat');  // Case-sensitive!
+const Chat = require('./models/Chat');  // Ensure correct case-sensitive import
 const methodOverride = require('method-override');
 const axios = require('axios');
 const cors = require('cors');
@@ -103,13 +103,19 @@ app.get('/cities', async (req, res) => {
 
 app.post('/chat', async (req, res) => {
   try {
-    const { message } = req.body;
-    const chat = new Chat({ message });
-    await chat.save();
-    res.status(201).json(chat);
-  } catch (err) {
-    console.error("Error saving chat message:", err);
-    res.status(500).json({ error: "Server error while saving chat message." });
+    const { message, sender } = req.body;
+
+    if (!message || !sender) {
+      return res.status(400).json({ error: "Message and sender are required" });
+    }
+
+    const newChat = new Chat({ message, sender });
+    await newChat.save();
+
+    res.status(201).json({ message: "Chat saved successfully" });
+  } catch (error) {
+    console.error("Error saving chat message:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
