@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const Twilio = require('twilio');
-const connectDB = require('./db');
 const User = require('./models/User');
 const City = require('./models/City');
 const Chat = require('./models/Chat');  // Ensure correct case-sensitive import
@@ -21,10 +20,21 @@ const port = process.env.PORT || 3000;
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.log(err));
+// Debugging: Print MONGO_URI to logs
+console.log("🔍 Checking MONGO_URI:", process.env.MONGO_URI);
+
+const mongoURI = process.env.MONGO_URI;
+if (!mongoURI) {
+  console.error("❌ MONGO_URI is missing! Check Railway environment variables.");
+  process.exit(1);  // Stop server if MongoDB connection is not available
+}
+
+mongoose.connect(mongoURI)
+  .then(() => console.log("✅ MongoDB connected successfully"))
+  .catch(err => {
+    console.error("❌ MongoDB connection error:", err);
+    process.exit(1);
+  });
 
 // Express session
 app.use(session({
@@ -36,9 +46,6 @@ app.use(session({
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Connect to MongoDB
-connectDB();
 
 // Middleware
 app.use(express.json());
