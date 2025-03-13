@@ -97,15 +97,29 @@ app.post('/register', async (req, res) => {
   }
 });
 
+
+
 app.post('/login', (req, res, next) => {
-  passport.authenticate('local', (err, user, info) => {
-    if (err) return next(err);
-    if (!user) return res.status(400).send(info.message);
-    req.logIn(user, (err) => {
-      if (err) return next(err);
-      return res.send('Logged in');
-    });
-  })(req, res, next);
+    console.log("🔍 Login Attempt:", req.body); // Debugging
+
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error("❌ Passport Error:", err);
+            return next(err);
+        }
+        if (!user) {
+            console.warn("⚠️ No User Found:", info.message);
+            return res.status(400).send(info.message);
+        }
+        req.logIn(user, (err) => {
+            if (err) {
+                console.error("❌ Session Error:", err);
+                return next(err);
+            }
+            console.log("✅ User Logged In:", user.username);
+            return res.send('Logged in');
+        });
+    })(req, res, next);
 });
 
 app.post('/cities', async (req, res) => {
