@@ -14,12 +14,13 @@ const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
 const MongoStore = require('connect-mongo');
-const fetch = require("node-fetch");
+const fetch = require("node-fetch"); // For CommonJS
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 
+git add server.js
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
