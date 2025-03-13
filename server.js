@@ -19,6 +19,7 @@ const fetch = require("node-fetch");
 const app = express();
 const port = process.env.PORT || 3000;
 
+
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
@@ -114,17 +115,17 @@ app.post('/login', (req, res, next) => {
 });
 
 app.post('/cities', async (req, res) => {
-  try {
-    if (!req.isAuthenticated()) return res.status(401).send('Not authenticated');
+    try {
+        if (!req.isAuthenticated()) return res.status(401).send('Not authenticated');
 
-    const { city } = req.body;
-    const newCity = new City({ name: city, userId: req.user.id });
-    await newCity.save();
-    res.status(201).send('City saved');
-  } catch (error) {
-    console.error('Error saving city:', error);
-    res.status(500).send('Error saving city');
-  }
+        const { city } = req.body;
+        const newCity = new City({ name: city, userId: req.user.id });
+        await newCity.save();
+        res.status(201).send('City saved');
+    } catch (error) {
+        console.error('Error saving city:', error);
+        res.status(500).send('Error saving city');
+    }
 });
 
 app.get('/cities', async (req, res) => {
@@ -280,6 +281,25 @@ async function fetchWeather(city) {
         recognition.start();
     });
 })();
+
+const saveCity = async (city) => {
+    const response = await fetch("/cities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ city })
+    });
+
+    if (response.status === 401) {
+        alert("You must be logged in to save a city.");
+        return;
+    }
+
+    if (!response.ok) {
+        console.error("Failed to save city:", response.statusText);
+    } else {
+        console.log("City saved successfully");
+    }
+};
 
 app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
