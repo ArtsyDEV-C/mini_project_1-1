@@ -7,19 +7,16 @@ const passport = require('passport');
 const Twilio = require('twilio');
 const User = require('./models/User');
 const City = require('./models/City');
-const Chat = require('./models/Chat');  // Ensure correct case-sensitive import
+const Chat = require('./models/Chat');  // Import Chat model
 const methodOverride = require('method-override');
 const axios = require('axios');
 const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
 const MongoStore = require('connect-mongo');
-const fetch = require("node-fetch"); // For CommonJS
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-
 
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -29,16 +26,12 @@ console.log("🔍 Checking MONGO_URI:", process.env.MONGO_URI);
 
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
-  console.error("❌ MONGO_URI is missing! Check Railway environment variables.");
-  process.exit(1);  // Stop server if MongoDB connection is not available
+    console.warn("⚠️ Warning: MONGO_URI is missing. Using local fallback.");
+} else {
+    mongoose.connect(mongoURI)
+        .then(() => console.log("✅ MongoDB connected successfully"))
+        .catch(err => console.error("❌ MongoDB connection error:", err));
 }
-
-mongoose.connect(mongoURI)
-  .then(() => console.log("✅ MongoDB connected successfully"))
-  .catch(err => {
-    console.error("❌ MongoDB connection error:", err);
-    process.exit(1);
-  });
 
 // Middleware
 app.use(express.json({ limit: "10mb" })); // Increase limit if needed
@@ -144,17 +137,19 @@ app.post('/chat', async (req, res) => {
         console.log("Received Chat Message:", req.body); // Debugging
         const { message, sender } = req.body;
 
+        // Validate message input
         if (!message || !sender) {
             return res.status(400).json({ error: "Message and sender are required" });
         }
 
+        // Store message in database
         const newChat = new Chat({ message, sender });
         await newChat.save();
 
         res.status(201).json({ message: "Chat saved successfully" });
     } catch (error) {
-        console.error("Error saving chat message:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.error("❌ Chat API Error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
@@ -227,12 +222,13 @@ const fetchWeatherAlerts = async (city) => {
 // Fetch weather data from API
 async function fetchWeatherData(city) {
     try {
-        if (!city) throw new Error("City is required");
+        if (!city) throw new Error("City name is required");
 
-        const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
-        
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`);
+
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+            const errorMessage = `API Error ${response.status}: ${response.statusText}`;
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
