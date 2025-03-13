@@ -16,7 +16,8 @@ const path = require('path');
 const MongoStore = require('connect-mongo');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000; // Use port 3000 instead of 8080
+
 
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
