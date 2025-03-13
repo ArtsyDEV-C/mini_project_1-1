@@ -12,7 +12,7 @@
     <!-- Add this Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-    <!-- Your script.js must come after Leaflet.js -->
+    <!-- Your custom JavaScript -->
     <script defer src="script.js"></script>
 </head>
 <body>
@@ -52,6 +52,9 @@
         <button id="search-button">Search</button>
         <video src="videos/search.mp4" autoplay loop muted id="search-video"></video>
     </div>
+
+    <!-- City Suggestions -->
+    <ul id="city-suggestions"></ul>
 
     <!-- Current Weather Section -->
     <div class="weather-container">
@@ -103,6 +106,12 @@
     <!-- Video and Music Section -->
     <video id="weather-video" width="100%" height="auto" muted autoplay loop src="videos/default.mp4"></video>
     <audio id="weather-music" loop></audio>
+
+    <!-- Background Video Section -->
+    <video id="background-video" width="100%" height="auto" controls preload="none">
+        <source src="videos/cloudy-morning-cat.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
     <!-- Chat Section -->
     <div id="chat-container">
