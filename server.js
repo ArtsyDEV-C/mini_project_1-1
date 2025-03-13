@@ -22,15 +22,15 @@ const port = process.env.PORT || 3000;
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Debugging: Print MONGO_URI to logs
-console.log("🔍 Checking MONGO_URI:", process.env.MONGO_URI);
+console.log("\ud83d\udd0d Checking MONGO_URI:", process.env.MONGO_URI);
 
 const mongoURI = process.env.MONGO_URI;
 if (!mongoURI) {
-    console.warn("⚠️ Warning: MONGO_URI is missing. Using local fallback.");
+    console.warn("\u26a0\ufe0f Warning: MONGO_URI is missing. Using local fallback.");
 } else {
     mongoose.connect(mongoURI)
-        .then(() => console.log("✅ MongoDB connected successfully"))
-        .catch(err => console.error("❌ MongoDB connection error:", err));
+        .then(() => console.log("\u2705 MongoDB connected successfully"))
+        .catch(err => console.error("\u274c MongoDB connection error:", err));
 }
 
 // Middleware
@@ -39,22 +39,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 app.use(methodOverride('_method'));
 app.use(express.static('public'));
-
-// Middleware for request debugging (Logs headers & body)
-app.use((req, res, next) => {
-    console.log(`🔹 [${req.method}] ${req.url}`);
-    console.log("Headers:", req.headers);
-    next();
-});
-
-// Handle request stream errors
-app.use((req, res, next) => {
-    req.on("error", (err) => {
-        console.error("❌ Request Error:", err);
-        res.status(400).json({ error: "Malformed Request" });
-    });
-    next();
-});
 
 // Express session
 app.use(session({
@@ -83,45 +67,62 @@ app.get('/public/videos/:filename', (req, res) => {
 
 // Routes
 app.post('/register', async (req, res) => {
-  try {
-    console.log("Request Body:", req.body); // Debugging
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "Missing fields" });
-
-    // Registration logic here...
-
-    res.status(201).json({ message: "User registered successfully" });
-  } catch (error) {
-    console.error("Registration Error:", error);
-    res.status(500).json({ error: "Server error" });
-  }
+    try {
+        console.log("Request Body:", req.body);
+        const { username, password } = req.body;
+        if (!username || !password) return res.status(400).json({ error: "Missing fields" });
+        res.status(201).json({ message: "User registered successfully" });
+    } catch (error) {
+        console.error("Registration Error:", error);
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
-
-
 app.post('/login', (req, res, next) => {
-    console.log("🔍 Login Attempt:", req.body); // Debugging
-
     passport.authenticate('local', (err, user, info) => {
-        if (err) {
-            console.error("❌ Passport Error:", err);
-            return next(err);
-        }
-        if (!user) {
-            console.warn("⚠️ No User Found:", info.message);
-            return res.status(400).send(info.message);
-        }
+        if (err) return res.status(500).json({ error: "Authentication error" });
+        if (!user) return res.status(400).json({ error: info?.message || "Invalid credentials" });
         req.logIn(user, (err) => {
-            if (err) {
-                console.error("❌ Session Error:", err);
-                return next(err);
-            }
-            console.log("✅ User Logged In:", user.username);
-            return res.send('Logged in');
+            if (err) return res.status(500).json({ error: "Session setup error" });
+            return res.json({ message: 'Logged in', user });
         });
     })(req, res, next);
 });
 
+app.post('/cities', async (req, res) => {
+    try {
+        if (!req.isAuthenticated()) return res.status(401).json({ error: "You must be logged in" });
+        const { city } = req.body;
+        const newCity = new City({ name: city, userId: req.user.id });
+        await newCity.save();
+        res.status(201).json({ message: 'City saved', city: newCity });
+    } catch (error) {
+        console.error('Error saving city:', error);
+        res.status(500).json({ error: "Error saving city" });
+    }
+});
+
+app.get('/api/weather', async (req, res) => {
+    const city = req.query.city;
+    if (!city) return res.status(400).json({ error: "City is required" });
+    try {
+        const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`);
+        res.json(response.data);
+    } catch (error) {
+        console.error("Weather API Error:", error);
+        res.status(500).json({ error: "Failed to fetch weather data" });
+    }
+});
+
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error("\ud83d\udea8 Uncaught Error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+});
+
+app.listen(port, () => {
+    console.log(`\ud83d\ude80 Server running on port ${port}`);
+});
 app.post('/cities', async (req, res) => {
     try {
         console.log("🔍 Checking User Session:", req.user); // Debugging
