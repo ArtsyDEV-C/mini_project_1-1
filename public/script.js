@@ -237,6 +237,11 @@ function updateWeatherUI(data) {
 
 // Fetch weather data from API
 async function fetchWeather(city) {
+    if (!city || city.trim() === "") {
+        alert("Please enter a valid city name.");
+        return;
+    }
+
     const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your actual API key
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
@@ -244,19 +249,23 @@ async function fetchWeather(city) {
     try {
         const weatherResponse = await fetch(weatherUrl);
         const weatherData = await weatherResponse.json();
-        
+
+        if (weatherData.cod !== 200) {
+            throw new Error(`City not found: ${city}`);
+        }
+
         const forecastResponse = await fetch(forecastUrl);
         const forecastData = await forecastResponse.json();
 
-        if (!weatherData.weather || !forecastData.list) {
-            throw new Error("Weather or forecast data not found");
+        if (forecastData.cod !== "200") {
+            throw new Error(`Forecast data not available for ${city}`);
         }
 
         updateWeatherUI(weatherData);
         updateForecastUI(forecastData.list);
     } catch (error) {
         console.error("❌ Error fetching weather data:", error);
-        alert('Error fetching weather data!');
+        alert(`❌ Error: ${error.message}`);
     }
 }
 
@@ -405,19 +414,24 @@ const triggerAlert = async (type, to, message) => {
 };
 
 // Function to provide recommendations based on weather
-const provideRecommendations = (weather) => {
-  const recommendations = [];
-  if (weather.main.temp < 15) {
-    recommendations.push('Wear warm clothes');
-  } else if (weather.main.temp > 30) {
-    recommendations.push('Wear light clothes');
-  }
-  if (weather.weather[0].main === 'Rain') {
-    recommendations.push('Carry an umbrella');
-  }
-  // Display recommendations
-  document.getElementById('recommendations').innerHTML = recommendations.join(', ');
-};
+function provideRecommendations(weather) {
+    if (!weather || !weather.weather || weather.weather.length === 0) {
+        console.error("❌ Weather data is missing or invalid.");
+        return;
+    }
+
+    const recommendations = [];
+    const condition = weather.weather[0].main.toLowerCase();
+    const temp = weather.main.temp;
+
+    if (temp < 15) recommendations.push("Wear warm clothes 🧥");
+    if (temp > 30) recommendations.push("Stay hydrated 💧");
+    if (condition.includes("rain")) recommendations.push("Carry an umbrella ☔");
+    if (condition.includes("snow")) recommendations.push("Wear a jacket ❄️");
+    if (condition.includes("thunderstorm")) recommendations.push("Stay indoors ⚡");
+
+    document.getElementById("recommendations").innerHTML = recommendations.join(", ");
+}
 
 // Function to display disaster warnings
 const displayDisasterWarnings = (warnings) => {
@@ -479,4 +493,40 @@ recognition.start();
 //   renderer.render(scene, camera);
 // };
 // animate();
+
+async function getCitySuggestions(city) {
+    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your actual API key
+    const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${apiKey}`;
+
+    try {
+        const response = await fetch(geoUrl);
+        const data = await response.json();
+
+        if (data.length === 0) {
+            return [];
+        }
+
+        return data.map(location => `${location.name}, ${location.country}`);
+    } catch (error) {
+        console.error("❌ Error fetching city suggestions:", error);
+        return [];
+    }
+}
+
+searchBar.addEventListener('input', async () => {
+    const city = searchBar.value.trim();
+    if (city.length < 2) return;
+
+    const suggestions = await getCitySuggestions(city);
+    const suggestionsList = document.querySelector("#city-suggestions");
+
+    suggestionsList.innerHTML = suggestions
+        .map(suggestion => `<li onclick="selectCity('${suggestion}')">${suggestion}</li>`)
+        .join('');
+});
+
+function selectCity(city) {
+    searchBar.value = city;
+    document.querySelector("#city-suggestions").innerHTML = "";
+}
 
