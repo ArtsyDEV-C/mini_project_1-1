@@ -14,6 +14,7 @@ const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
 const path = require('path');
 const MongoStore = require('connect-mongo');
+const fetch = require("node-fetch");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -38,17 +39,24 @@ mongoose.connect(mongoURI)
   });
 
 // Middleware
-app.use(express.json({ limit: "10mb" })); // Set limit to avoid large payload issues
+app.use(express.json({ limit: "10mb" })); // Increase limit if needed
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cors());
 app.use(methodOverride('_method'));
 app.use(express.static('public'));
 
+// Middleware for request debugging (Logs headers & body)
+app.use((req, res, next) => {
+    console.log(`🔹 [${req.method}] ${req.url}`);
+    console.log("Headers:", req.headers);
+    next();
+});
+
 // Handle request stream errors
 app.use((req, res, next) => {
     req.on("error", (err) => {
         console.error("❌ Request Error:", err);
-        res.status(400).json({ error: "Invalid request format" });
+        res.status(400).json({ error: "Malformed Request" });
     });
     next();
 });
@@ -57,7 +65,7 @@ app.use((req, res, next) => {
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URI,
         collectionName: 'sessions'
@@ -81,11 +89,16 @@ app.get('/public/videos/:filename', (req, res) => {
 // Routes
 app.post('/register', async (req, res) => {
   try {
-    console.log(req.body); // Debugging
-    res.status(201).send("User registered");
+    console.log("Request Body:", req.body); // Debugging
+    const { username, password } = req.body;
+    if (!username || !password) return res.status(400).json({ error: "Missing fields" });
+
+    // Registration logic here...
+
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    console.error("Error in registration:", error);
-    res.status(500).send("Internal Server Error");
+    console.error("Registration Error:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -125,21 +138,22 @@ app.get('/cities', async (req, res) => {
 });
 
 app.post('/chat', async (req, res) => {
-  try {
-    const { message, sender } = req.body;
+    try {
+        console.log("Received Chat Message:", req.body); // Debugging
+        const { message, sender } = req.body;
 
-    if (!message || !sender) {
-      return res.status(400).json({ error: "Message and sender are required" });
+        if (!message || !sender) {
+            return res.status(400).json({ error: "Message and sender are required" });
+        }
+
+        const newChat = new Chat({ message, sender });
+        await newChat.save();
+
+        res.status(201).json({ message: "Chat saved successfully" });
+    } catch (error) {
+        console.error("Error saving chat message:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
-
-    const newChat = new Chat({ message, sender });
-    await newChat.save();
-
-    res.status(201).json({ message: "Chat saved successfully" });
-  } catch (error) {
-    console.error("Error saving chat message:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
 });
 
 app.post("/test", async (req, res) => {
@@ -147,8 +161,126 @@ app.post("/test", async (req, res) => {
     res.send("Success");
 });
 
+// Route to fetch weather data
+app.get("/api/weather", async (req, res) => {
+    const city = req.query.city;
+    if (!city) return res.status(400).json({ error: "City is required" });
+
+    try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`);
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("❌ Weather API Error:", error);
+        res.status(500).json({ error: "Failed to fetch weather data" });
+    }
+});
+
+// Global Error Handling Middleware
+app.use((err, req, res, next) => {
+    console.error("🚨 Uncaught Error:", err);
+    res.status(500).json({ error: "Something went wrong" });
+});
+
 // Your other routes and middleware here
 
+const sendMessage = async () => {
+    const message = document.getElementById("chat-input").value;
+    const sender = "User"; // Replace with actual sender information if available
+
+    if (!message) return alert("Message cannot be empty");
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message, sender })
+    });
+
+    if (!response.ok) {
+        console.error("Chat API error:", response.statusText);
+    } else {
+        console.log("Message sent successfully");
+    }
+};
+
+const apiKey = "2149cbc5da7384b8ef7bcccf62b0bf68"; // Ensure this is valid
+
+const fetchWeatherAlerts = async (city) => {
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("No weather alerts available");
+        return await response.json();
+    } catch (error) {
+        console.warn("No alerts found for", city);
+        return null;
+    }
+};
+
+// Fetch weather data from API
+async function fetchWeatherData(city) {
+    try {
+        const response = await fetch(`/api/weather?city=${city}`);
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        if (!data || !data.main) {
+            throw new Error("Invalid weather data");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("❌ Weather API error:", error);
+        return null; // Prevents app from crashing
+    }
+}
+
+// Fetch weather data from API
+async function fetchWeather(city) {
+    if (!city || city.trim() === "") {
+        alert("Please enter a valid city name.");
+        return;
+    }
+
+    try {
+        const weatherData = await fetchWeatherData(city);
+
+        if (!weatherData) {
+            alert("❌ Error fetching weather data.");
+            return;
+        }
+
+        updateWeatherUI(weatherData);
+        fetchWeatherForecast(city); // Fetch and update the forecast
+        fetchWeatherAlerts(city); // Fetch and display weather alerts
+    } catch (error) {
+        console.error("❌ Error fetching weather data:", error);
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+// Voice recognition for weather search
+(function () {
+    if (window.recognitionInitialized) return;
+    window.recognitionInitialized = true;
+
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.onresult = (event) => {
+        const city = event.results[0][0].transcript;
+        console.log("Recognized City:", city);
+        fetchWeather(city);
+    };
+
+    // Start voice search when microphone button is clicked
+    document.querySelector("#voice-search").addEventListener("click", () => {
+        recognition.start();
+    });
+})();
+
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`🚀 Server running on port ${port}`);
 });

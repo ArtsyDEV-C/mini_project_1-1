@@ -188,21 +188,39 @@ function updateWeatherUI(data) {
 }
 
 // Fetch weather data from API
+async function fetchWeatherData(city) {
+    try {
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        if (!data || !data.main) {
+            throw new Error("Invalid weather data");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("❌ Weather API error:", error);
+        return null; // Prevents app from crashing
+    }
+}
+
+// Fetch weather data from API
 async function fetchWeather(city) {
     if (!city || city.trim() === "") {
         alert("Please enter a valid city name.");
         return;
     }
 
-    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your actual API key
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-
     try {
-        const weatherResponse = await fetch(weatherUrl);
-        const weatherData = await weatherResponse.json();
+        const weatherData = await fetchWeatherData(city);
 
-        if (weatherData.cod !== 200) {
-            throw new Error(`City not found: ${city}`);
+        if (!weatherData) {
+            alert("❌ Error fetching weather data.");
+            return;
         }
 
         updateWeatherUI(weatherData);
