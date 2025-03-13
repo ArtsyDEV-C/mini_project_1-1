@@ -557,18 +557,23 @@ async function fetchWeatherForecast(city) {
 }
 
 // Voice recognition for weather search
-const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-recognition.lang = "en-US";
-recognition.onresult = (event) => {
-    const city = event.results[0][0].transcript;
-    console.log("Recognized City:", city);
-    fetchWeather(city);
-};
+(function () {
+    if (window.recognitionInitialized) return;
+    window.recognitionInitialized = true;
 
-// Start voice search when microphone button is clicked
-document.querySelector("#voice-search").addEventListener("click", () => {
-    recognition.start();
-});
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.onresult = (event) => {
+        const city = event.results[0][0].transcript;
+        console.log("Recognized City:", city);
+        fetchWeather(city);
+    };
+
+    // Start voice search when microphone button is clicked
+    document.querySelector("#voice-search").addEventListener("click", () => {
+        recognition.start();
+    });
+})();
 
 async function fetchWeatherAlerts(city) {
     const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your OpenWeatherMap API Key
@@ -592,4 +597,31 @@ async function fetchWeatherAlerts(city) {
         console.error("Error fetching alerts:", error);
     }
 }
+
+fetch("/api", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ name: "Shreejith" })
+});
+
+(function () {
+    if (window.recognitionInitialized) return;
+    window.recognitionInitialized = true;
+
+    // Voice recognition for weather search
+    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = "en-US";
+    recognition.onresult = (event) => {
+        const city = event.results[0][0].transcript;
+        console.log("Recognized City:", city);
+        fetchWeather(city);
+    };
+
+    // Start voice search when microphone button is clicked
+    document.querySelector("#voice-search").addEventListener("click", () => {
+        recognition.start();
+    });
+})();
 
