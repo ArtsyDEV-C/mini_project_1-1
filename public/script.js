@@ -107,7 +107,7 @@ function formatTime(date) {
     const minutes = date.getMinutes();
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12;
-    hours = hours ? hours : 12; // the hour '0' should be '12'
+    hours = hours ? 12; // the hour '0' should be '12'
     const strMinutes = minutes < 10 ? '0' + minutes : minutes;
     return `${hours}:${strMinutes} ${ampm}`;
 }
@@ -132,66 +132,18 @@ function updateWeatherUI(data) {
     const isEveningTime = now >= eveningStart && now < sunset;
     const isMorningTime = now >= sunrise && now < morningEnd;
 
-    // Set weather background
+    const timeOfDay = isDayTime ? "day" : (isEveningTime ? "evening" : "night");
     const weatherCondition = weather.main.toLowerCase();
-    let backgroundImage = isDayTime ? weatherBackgrounds["clear-day"] : weatherBackgrounds["clear-night"]; // Default
-    if (isEveningTime) {
-        backgroundImage = weatherBackgrounds["clear-evening"];
-    } else if (isMorningTime) {
-        backgroundImage = weatherBackgrounds["clear-day"];
-    }
-    if (weatherCondition.includes('cloud')) backgroundImage = isDayTime ? weatherBackgrounds["cloudy-day"] : (isEveningTime ? weatherBackgrounds["cloudy-evening"] : (isMorningTime ? weatherBackgrounds["cloudy-morning"] : weatherBackgrounds["cloudy-night"]));
-    if (weatherCondition.includes('rain')) backgroundImage = isDayTime ? weatherBackgrounds["rainy-day"] : (isEveningTime ? weatherBackgrounds["rainy-evening"] : (isMorningTime ? weatherBackgrounds["rainy-morning"] : weatherBackgrounds["rainy-night"]));
-    if (weatherCondition.includes('clear')) backgroundImage = isDayTime ? weatherBackgrounds["clear-day"] : (isEveningTime ? weatherBackgrounds["clear-evening"] : (isMorningTime ? weatherBackgrounds["clear-morning"] : weatherBackgrounds["clear-night"]));
-    if (weatherCondition.includes('snow')) backgroundImage = isDayTime ? weatherBackgrounds["snowy-day"] : (isEveningTime ? weatherBackgrounds["snowy-evening"] : (isMorningTime ? weatherBackgrounds["snowy-morning"] : weatherBackgrounds["snowy-night"]));
-    if (weatherCondition.includes('thunderstorm')) backgroundImage = isDayTime ? weatherBackgrounds["thunderstorm-day"] : (isEveningTime ? weatherBackgrounds["thunderstorm-evening"] : (isMorningTime ? weatherBackgrounds["thunderstorm-morning"] : weatherBackgrounds["thunderstorm-night"]));
-    if (weatherCondition.includes('haze')) backgroundImage = isDayTime ? weatherBackgrounds["hazy-day"] : (isEveningTime ? weatherBackgrounds["hazy-night"] : (isMorningTime ? weatherBackgrounds["hazy-morning"] : weatherBackgrounds["hazy-night"]));
-    if (weatherCondition.includes('fog')) backgroundImage = isDayTime ? weatherBackgrounds["foggy-day"] : (isEveningTime ? weatherBackgrounds["foggy-night"] : (isMorningTime ? weatherBackgrounds["foggy-morning"] : weatherBackgrounds["foggy-night"]));
-    if (weatherCondition.includes('wind')) backgroundImage = isDayTime ? weatherBackgrounds["windy-day"] : (isEveningTime ? weatherBackgrounds["windy-night"] : (isMorningTime ? weatherBackgrounds["windy-morning"] : weatherBackgrounds["windy-night"]));
+    const media = getWeatherMedia(weatherCondition, timeOfDay);
 
-    document.body.style.backgroundImage = `url(${backgroundImage})`;
-
-    // Set video and music based on weather
-    let video = weatherVideos["default"];
-    if (isDayTime) {
-        video = weatherVideos["clear-morning"];
-    } else if (isEveningTime) {
-        video = weatherVideos["clear-evening"];
-    } else if (isMorningTime) {
-        video = weatherVideos["clear-morning"];
-    } else {
-        video = weatherVideos["clear-night"];
-    }
-
-    let music = weatherMusic["clear"];
-    if (weatherCondition.includes('rain')) {
-        video = isDayTime ? weatherVideos["rain-morning"] : (isEveningTime ? weatherVideos["rain-evening"] : (isMorningTime ? weatherVideos["rain-morning"] : weatherVideos["rain-night"]));
-        music = weatherMusic["rainy"];
-    } else if (weatherCondition.includes('cloud')) {
-        video = isDayTime ? weatherVideos["cloudy-morning"] : (isEveningTime ? weatherVideos["cloudy-evening"] : (isMorningTime ? weatherVideos["cloudy-morning"] : weatherVideos["cloudy-night"]));
-        music = weatherMusic["cloudy"];
-    } else if (weatherCondition.includes('snow')) {
-        video = isDayTime ? weatherVideos["snowy-morning"] : (isEveningTime ? weatherVideos["snowy-evening"] : (isMorningTime ? weatherVideos["snowy-morning"] : weatherVideos["snowy-night"]));
-        music = weatherMusic["snowy"];
-    } else if (weatherCondition.includes('thunderstorm')) {
-        video = isDayTime ? weatherVideos["thunderstorm-morning"] : (isEveningTime ? weatherVideos["thunderstorm-evening"] : (isMorningTime ? weatherVideos["thunderstorm-morning"] : weatherVideos["thunderstorm-night"]));
-        music = weatherMusic["thunderstorm"];
-    } else if (weatherCondition.includes('haze')) {
-        video = isDayTime ? weatherVideos["foggy-morning"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-morning"] : weatherVideos["foggy-night"]));
-        music = weatherMusic["hazy"];
-    } else if (weatherCondition.includes('fog')) {
-        video = isDayTime ? weatherVideos["foggy-morning"] : (isEveningTime ? weatherVideos["foggy-evening"] : (isMorningTime ? weatherVideos["foggy-morning"] : weatherVideos["foggy-night"]));
-        music = weatherMusic["foggy"];
-    } else if (weatherCondition.includes('wind')) {
-        video = isDayTime ? weatherVideos["windy-morning"] : (isEveningTime ? weatherVideos["windy-evening"] : (isMorningTime ? weatherVideos["windy-morning"] : weatherVideos["windy-night"]));
-        music = weatherMusic["windy"];
-    }
+    // Set weather background
+    document.body.style.backgroundImage = `url(${media.background})`;
 
     // Set video
-    weatherVideo.src = video;
+    weatherVideo.src = media.video;
 
     // Set music (play automatically)
-    weatherMusicElement.src = music;
+    weatherMusicElement.src = weatherMusic[weatherCondition] || weatherMusic["clear"];
     weatherMusicElement.play();
 
     // Set temperature in Celsius and Fahrenheit
@@ -244,7 +196,6 @@ async function fetchWeather(city) {
 
     const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your actual API key
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
 
     try {
         const weatherResponse = await fetch(weatherUrl);
@@ -254,15 +205,9 @@ async function fetchWeather(city) {
             throw new Error(`City not found: ${city}`);
         }
 
-        const forecastResponse = await fetch(forecastUrl);
-        const forecastData = await forecastResponse.json();
-
-        if (forecastData.cod !== "200") {
-            throw new Error(`Forecast data not available for ${city}`);
-        }
-
         updateWeatherUI(weatherData);
-        updateForecastUI(forecastData.list);
+        fetchWeatherForecast(city); // Fetch and update the forecast
+        fetchWeatherAlerts(city); // Fetch and display weather alerts
     } catch (error) {
         console.error("❌ Error fetching weather data:", error);
         alert(`❌ Error: ${error.message}`);
@@ -528,5 +473,123 @@ searchBar.addEventListener('input', async () => {
 function selectCity(city) {
     searchBar.value = city;
     document.querySelector("#city-suggestions").innerHTML = "";
+}
+
+function getWeatherMedia(condition, timeOfDay) {
+    const backgrounds = {
+        "clear": { day: "images/clear-sky-day.jpg", night: "images/clear-sky-night.jpg", evening: "images/clear-sky-evening.jpg" },
+        "cloudy": { day: "images/cloudy-sky-day.jpg", night: "images/cloudy-sky-night.jpg", evening: "images/cloudy-sky-evening.jpg" },
+        "rain": { day: "images/rainy-sky-day.jpg", night: "images/rainy-sky-night.jpg", evening: "images/rainy-sky-evening.jpg" },
+        "snow": { day: "images/snowy-sky-day.jpg", night: "images/snowy-sky-night.jpg", evening: "images/snowy-sky-evening.jpg" },
+        "thunderstorm": { day: "images/thunderstorm-sky-day.jpg", night: "images/thunderstorm-sky-night.jpg", evening: "images/thunderstorm-sky-evening.jpg" },
+        "hazy": { day: "images/hazy-sky-day.jpg", night: "images/hazy-sky-night.jpg", evening: "images/hazy-sky-evening.jpg" },
+        "foggy": { day: "images/foggy-sky-day.jpg", night: "images/foggy-sky-night.jpg", evening: "images/foggy-sky-evening.jpg" },
+        "windy": { day: "images/windy-sky-day.jpg", night: "images/windy-sky-night.jpg", evening: "images/windy-sky-evening.jpg" }
+    };
+
+    const videos = {
+        "clear": { day: "videos/clear-day-cat.mp4", evening: "videos/clear-evening-cat.mp4", night: "videos/clear-night-cat.mp4" },
+        "cloudy": { day: "videos/cloudy-day-cat.mp4", evening: "videos/cloudy-evening-cat.mp4", night: "videos/cloudy-night-cat.mp4" },
+        "rain": { day: "videos/rain-day-cat.mp4", evening: "videos/rain-evening-cat.mp4", night: "videos/rain-night-cat.mp4" },
+        "snow": { day: "videos/snowy-day-cat.mp4", evening: "videos/snowy-evening-cat.mp4", night: "videos/snowy-night-cat.mp4" },
+        "thunderstorm": { day: "videos/thunderstorm-day-cat.mp4", evening: "videos/thunderstorm-evening-cat.mp4", night: "videos/thunderstorm-night-cat.mp4" },
+        "windy": { day: "videos/windy-day-cat.mp4", evening: "videos/windy-evening-cat.mp4", night: "videos/windy-night-cat.mp4" }
+    };
+
+    const defaultMedia = { day: "images/default.jpg", night: "images/default.jpg", evening: "images/default.jpg" };
+    const conditionKey = Object.keys(backgrounds).find(key => condition.includes(key)) || "clear";
+
+    return {
+        background: backgrounds[conditionKey]?.[timeOfDay] || defaultMedia[timeOfDay],
+        video: videos[conditionKey]?.[timeOfDay] || "videos/default.mp4"
+    };
+}
+
+async function fetchWeatherForecast(city) {
+    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your OpenWeatherMap API Key
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${apiKey}`;
+
+    try {
+        const response = await fetch(forecastUrl);
+        const data = await response.json();
+
+        if (data.cod !== "200") {
+            forecastContainer.innerHTML = `<div>Error fetching forecast data.</div>`;
+            return;
+        }
+
+        let forecastHtml = "";
+        const dailyForecasts = {}; // Store only one forecast per day
+
+        data.list.forEach((forecast) => {
+            const date = new Date(forecast.dt * 1000);
+            const day = date.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+
+            if (!dailyForecasts[day]) {
+                dailyForecasts[day] = {
+                    temp: Math.round(forecast.main.temp),
+                    description: forecast.weather[0].description,
+                    icon: forecast.weather[0].icon
+                };
+            }
+        });
+
+        let count = 0;
+        for (let day in dailyForecasts) {
+            if (count >= 10) break; // Show only 10 days
+            const forecast = dailyForecasts[day];
+
+            forecastHtml += `
+                <div class="forecast-item">
+                    <strong>${day}</strong>
+                    <img src="https://openweathermap.org/img/wn/${forecast.icon}.png" alt="${forecast.description}">
+                    <p>${forecast.description} - ${forecast.temp}°C</p>
+                </div>
+            `;
+            count++;
+        }
+
+        forecastContainer.innerHTML = forecastHtml;
+    } catch (error) {
+        console.error("Error fetching forecast:", error);
+        forecastContainer.innerHTML = `<div>Error fetching forecast.</div>`;
+    }
+}
+
+// Voice recognition for weather search
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = "en-US";
+recognition.onresult = (event) => {
+    const city = event.results[0][0].transcript;
+    console.log("Recognized City:", city);
+    fetchWeather(city);
+};
+
+// Start voice search when microphone button is clicked
+document.querySelector("#voice-search").addEventListener("click", () => {
+    recognition.start();
+});
+
+async function fetchWeatherAlerts(city) {
+    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your OpenWeatherMap API Key
+    const alertUrl = `https://api.openweathermap.org/data/2.5/alerts?q=${city}&appid=${apiKey}`;
+
+    try {
+        const response = await fetch(alertUrl);
+        const data = await response.json();
+
+        if (data.alerts && data.alerts.length > 0) {
+            let alertHtml = "";
+            data.alerts.forEach(alert => {
+                alertHtml += `<div class="alert">${alert.event}: ${alert.description}</div>`;
+            });
+
+            document.getElementById("weather-alerts").innerHTML = alertHtml;
+        } else {
+            document.getElementById("weather-alerts").innerHTML = "<div>No alerts for this location.</div>";
+        }
+    } catch (error) {
+        console.error("Error fetching alerts:", error);
+    }
 }
 
