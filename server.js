@@ -20,7 +20,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 
-git add server.js
+
 // Twilio configuration
 const twilioClient = new Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
@@ -187,10 +187,14 @@ app.use((err, req, res, next) => {
 // Your other routes and middleware here
 
 const sendMessage = async () => {
-    const message = document.getElementById("chat-input").value;
-    const sender = "User"; // Replace with actual sender information if available
+    const chatInput = document.getElementById("chat-input");
+    const message = chatInput.value.trim();
+    const sender = "User"; // Replace with actual sender info
 
-    if (!message) return alert("Message cannot be empty");
+    if (!message) {
+        alert("Message cannot be empty");
+        return;
+    }
 
     const response = await fetch("/chat", {
         method: "POST",
@@ -202,6 +206,7 @@ const sendMessage = async () => {
         console.error("Chat API error:", response.statusText);
     } else {
         console.log("Message sent successfully");
+        chatInput.value = ""; // Clear input after sending
     }
 };
 
@@ -222,20 +227,22 @@ const fetchWeatherAlerts = async (city) => {
 // Fetch weather data from API
 async function fetchWeatherData(city) {
     try {
-        const response = await fetch(`/api/weather?city=${city}`);
+        if (!city) throw new Error("City is required");
+
+        const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
         
         if (!response.ok) {
-            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            throw new Error(`API Error: ${response.status} - ${response.statusText}`);
         }
 
         const data = await response.json();
         if (!data || !data.main) {
-            throw new Error("Invalid weather data");
+            throw new Error("Invalid weather data received");
         }
 
         return data;
     } catch (error) {
-        console.error("❌ Weather API error:", error);
+        console.error("❌ Weather API error:", error.message);
         return null; // Prevents app from crashing
     }
 }
@@ -265,13 +272,11 @@ async function fetchWeather(city) {
 }
 
 // Voice recognition for weather search
-(function () {
-    if (window.recognitionInitialized) return;
-    window.recognitionInitialized = true;
+if (!window.recognition) {
+    window.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    window.recognition.lang = "en-US";
 
-    let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = "en-US";
-    recognition.onresult = (event) => {
+    window.recognition.onresult = (event) => {
         const city = event.results[0][0].transcript;
         console.log("Recognized City:", city);
         fetchWeather(city);
@@ -279,9 +284,9 @@ async function fetchWeather(city) {
 
     // Start voice search when microphone button is clicked
     document.querySelector("#voice-search").addEventListener("click", () => {
-        recognition.start();
+        window.recognition.start();
     });
-})();
+}
 
 const saveCity = async (city) => {
     const response = await fetch("/cities", {
