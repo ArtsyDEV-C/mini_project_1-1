@@ -37,6 +37,22 @@ mongoose.connect(mongoURI)
     process.exit(1);
   });
 
+// Middleware
+app.use(express.json({ limit: "10mb" })); // Set limit to avoid large payload issues
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(cors());
+app.use(methodOverride('_method'));
+app.use(express.static('public'));
+
+// Handle request stream errors
+app.use((req, res, next) => {
+    req.on("error", (err) => {
+        console.error("❌ Request Error:", err);
+        res.status(400).json({ error: "Invalid request format" });
+    });
+    next();
+});
+
 // Express session
 app.use(session({
     secret: process.env.SESSION_SECRET,
@@ -52,13 +68,6 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method'));
-app.use(cors());
-app.use(express.static('public'));
-
 // Disable favicon request
 app.get('/favicon.ico', (req, res) => res.status(204));
 
@@ -72,9 +81,11 @@ app.get('/public/videos/:filename', (req, res) => {
 // Routes
 app.post('/register', async (req, res) => {
   try {
-    // Registration logic here
+    console.log(req.body); // Debugging
+    res.status(201).send("User registered");
   } catch (error) {
-    // Error handling here
+    console.error("Error in registration:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -129,6 +140,11 @@ app.post('/chat', async (req, res) => {
     console.error("Error saving chat message:", error);
     res.status(500).json({ error: "Internal server error" });
   }
+});
+
+app.post("/test", async (req, res) => {
+    console.log(req.body); // ✅ Access `req.body` normally
+    res.send("Success");
 });
 
 // Your other routes and middleware here
