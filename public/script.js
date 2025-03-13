@@ -237,21 +237,50 @@ function updateWeatherUI(data) {
 
 // Fetch weather data from API
 async function fetchWeather(city) {
-    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68';
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    const apiKey = '2149cbc5da7384b8ef7bcccf62b0bf68'; // Replace with your actual API key
+    const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
 
     try {
-        const response = await fetch(apiUrl);
-        const data = await response.json();
+        const weatherResponse = await fetch(weatherUrl);
+        const weatherData = await weatherResponse.json();
+        
+        const forecastResponse = await fetch(forecastUrl);
+        const forecastData = await forecastResponse.json();
 
-        if (!data.weather) {
-            throw new Error("Weather data not found");
+        if (!weatherData.weather || !forecastData.list) {
+            throw new Error("Weather or forecast data not found");
         }
 
-        updateWeatherUI(data);
+        updateWeatherUI(weatherData);
+        updateForecastUI(forecastData.list);
     } catch (error) {
         console.error("❌ Error fetching weather data:", error);
         alert('Error fetching weather data!');
+    }
+}
+
+// Function to update forecast data on the page
+function updateForecastUI(forecastList) {
+    const forecastContainer = document.getElementById('forecast');
+    forecastContainer.innerHTML = ""; // Clear old data
+
+    for (let i = 0; i < forecastList.length; i += 8) { // Every 24 hours
+        const forecast = forecastList[i];
+        const date = new Date(forecast.dt * 1000);
+        const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const temp = Math.round(forecast.main.temp);
+        const weather = forecast.weather[0].main;
+        const icon = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}.png`;
+
+        const forecastHTML = `
+            <div class="forecast-item">
+                <strong>${day}</strong>
+                <img src="${icon}" alt="${weather}">
+                <p>${weather} - ${temp}°C</p>
+            </div>
+        `;
+        forecastContainer.innerHTML += forecastHTML;
     }
 }
 
