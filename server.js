@@ -16,7 +16,8 @@ const path = require('path');
 const MongoStore = require('connect-mongo');
 
 const app = express();
-const port = process.env.PORT || 5678;
+const port = process.env.PORT || 6000;
+
  // Use port 4567 instead of 8080 and 3000
 
 
