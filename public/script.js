@@ -190,7 +190,8 @@ function updateWeatherUI(data) {
 // Fetch weather data from API
 async function fetchWeatherData(city) {
     try {
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`)
+
         
         if (!response.ok) {
             throw new Error(`API Error: ${response.status} ${response.statusText}`);
