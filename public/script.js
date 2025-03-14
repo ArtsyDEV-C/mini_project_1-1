@@ -91,8 +91,26 @@ const registerForm = document.querySelector('#register-form');
 const loginForm = document.querySelector('#login-form');
 const saveCityForm = document.querySelector('#save-city-form');
 
-// API key for weather data (get your own from https://openweathermap.org/api)
-const API_KEY = '2149cbc5da7384b8ef7bcccf62b0bf68';
+let API_KEY = "";
+
+// Fetch API key from backend before making weather requests
+async function getApiKey() {
+    try {
+        const response = await fetch("/api/getApiKey");
+        const data = await response.json();
+        API_KEY = data.apiKey;
+
+        if (!API_KEY) {
+            console.error("❌ ERROR: API key is missing. Set OPENWEATHER_API_KEY in .env.");
+        }
+    } catch (error) {
+        console.error("❌ Error fetching API key:", error);
+    }
+}
+
+// ✅ Fetch API Key at Startup
+await getApiKey();
+
 
 // Function to get the current date and time
 function updateDateTime() {
