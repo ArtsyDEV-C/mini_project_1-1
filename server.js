@@ -16,7 +16,8 @@ const path = require('path');
 const MongoStore = require('connect-mongo');
 
 const app = express();
-const port = process.env.PORT || Math.floor(Math.random() * 5000) + 3000;
+const port = process.env.PORT || 3000; // Railway auto-assigns PORT
+
 app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
 
 
