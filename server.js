@@ -17,6 +17,8 @@ const MongoStore = require('connect-mongo');
 
 const app = express();
 const port = process.env.PORT || Math.floor(Math.random() * 5000) + 3000;
+app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
+
 
 
  // Use port 4567 instead of 8080 and 3000
