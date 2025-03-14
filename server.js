@@ -21,7 +21,7 @@ const port = process.env.PORT || Math.floor(Math.random() * (50000 - 3000) + 300
 
 
 
- // Use port 4567 instead of 8080 and 3000
+ 
 
 
 // Twilio configuration
